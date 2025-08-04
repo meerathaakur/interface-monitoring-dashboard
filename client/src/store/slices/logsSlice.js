@@ -19,6 +19,14 @@ export const fetchSummary = createAsyncThunk(
     }
 )
 
+export const fetchTimeline = createAsyncThunk(
+    "logs/fetchTimeline",
+    async (timeRange) => {
+        const response = await api.get(`/logs/timeline?range=${timeRange}`);
+        return response.data;
+    }
+)
+
 const logsSlice = createSlice({
     name: "logs",
     initialState: {
@@ -31,6 +39,7 @@ const logsSlice = createSlice({
     reducers: {},
     extraReducers: (builder) => {
         builder
+        // Fetch Logs
             .addCase(fetchLogs.pending, (state) => {
                 state.loading = true;
             })
@@ -43,6 +52,7 @@ const logsSlice = createSlice({
                 state.loading = false;
                 state.error = action.error.message;
             })
+            // Fetch Summary
             .addCase(fetchSummary.pending, (state) => {
                 state.loading = true;
             })
@@ -51,6 +61,18 @@ const logsSlice = createSlice({
                 state.loading = false;
             })
             .addCase(fetchSummary.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.error.message;
+            })
+            // Fetch Timeline
+            .addCase(fetchTimeline.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(fetchTimeline.fulfilled, (state, action) => {
+                state.timeline = action.payload;
+                state.loading = false;
+            })
+            .addCase(fetchTimeline.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.error.message;
             })

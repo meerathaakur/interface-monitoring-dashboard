@@ -4,7 +4,7 @@ const cache = async (req, res, next) => {
         const data = await req.app.locals.redisClient.get(key);
         if (data) {
             console.log("Cache hit for key:", key);
-            return res.json(JSON.parse(data));
+            // return res.json(JSON.parse(data));
         }
         req.redisCacheKey = key;
         next();
