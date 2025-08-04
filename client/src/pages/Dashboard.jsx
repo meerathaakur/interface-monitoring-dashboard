@@ -4,6 +4,8 @@ import { fetchSummary } from '../store/slices/logsSlice';
 import SummaryChart from '../components/Charts/SummaryChart';
 import StatusPieChart from '../components/Charts/StatusPieChart';
 import TimelineChart from '../components/Charts/TimelineChart';
+import { Button } from '@mui/material';
+import { Link } from 'react-router-dom';
 
 const Dashboard = () => {
   const dispatch = useDispatch();
@@ -26,6 +28,8 @@ const Dashboard = () => {
         <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4 md:mb-0">
           Interface Health Dashboard
         </h1>
+        <div>
+          <Link to="/logs"><button className=' bg-gray-500 text-white hover:bg-gray-600 cursor-pointer px-4 py-2 rounded-md mr-4'>Logs Table</button></Link>
         <select
           value={timeRange}
           onChange={(e) => setTimeRange(e.target.value)}
@@ -36,6 +40,7 @@ const Dashboard = () => {
           <option value="7d">Last 7 Days</option>
           <option value="30d">Last 30 Days</option>
         </select>
+        </div>
       </div>
 
       {/* Stats Cards */}
