@@ -1,7 +1,7 @@
 import axios from "axios"
 
 const api=axios.create({
-    baseURL:"http://localhost:8080/api"
+    baseURL:"https://interface-monitoring-dashboard.onrender.com/api"
 })
 
 export default api
