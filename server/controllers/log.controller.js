@@ -4,7 +4,7 @@ import { getDateRange } from "../utils/helper.js";
 export const getPaginationLogs = async (req, res) => {
     const {
         page = 1,
-        limit = 10,
+        limit = 50,
         status,
         interfaceName,
         from,
@@ -89,7 +89,7 @@ export const getTimelineLogs = async (req, res) => {
             },
             { $sort: { _id: 1 } }
         ]);
-console.log(timelineData)
+        console.log(timelineData)
         res.json(timelineData.map(item => ({
             date: item._id,
             successCount: item.successCount,
