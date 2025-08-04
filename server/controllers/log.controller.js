@@ -89,7 +89,7 @@ export const getTimelineLogs = async (req, res) => {
             },
             { $sort: { _id: 1 } }
         ]);
-
+console.log(timelineData)
         res.json(timelineData.map(item => ({
             date: item._id,
             successCount: item.successCount,

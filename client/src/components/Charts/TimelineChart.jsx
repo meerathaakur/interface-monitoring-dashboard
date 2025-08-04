@@ -1,21 +1,24 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import Chart from 'react-apexcharts';
-import api from '../../services/api';
+import { fetchTimeline } from '../../store/slices/logsSlice';
+import { useDispatch, useSelector } from 'react-redux';
 
 const TimelineChart = ({ timeRange }) => {
-    const [timelineData, setTimelineData] = useState([]);
+    const dispatch = useDispatch();
+    const { timeline = [], loading } = useSelector((state) => state.logs);
 
     useEffect(() => {
-        const fetchTimelineData = async () => {
-            try {
-                const response = await api.get(`/logs/timeline?range=${timeRange}`);
-                setTimelineData(response.data);
-            } catch (err) {
-                console.error('Failed to fetch timeline data:', err);
-            }
-        };
-        fetchTimelineData();
-    }, [timeRange]);
+        dispatch(fetchTimeline(timeRange));
+    }, [dispatch, timeRange]);
+
+    // Filter invalid entries
+    const validTimeline = timeline.filter(
+        (item) =>
+            item &&
+            typeof item.date === 'string' &&
+            typeof item.successCount === 'number' &&
+            typeof item.failureCount === 'number'
+    );
 
     const chartOptions = {
         chart: {
@@ -25,45 +28,45 @@ const TimelineChart = ({ timeRange }) => {
         stroke: { curve: 'smooth', width: 3 },
         xaxis: {
             type: 'datetime',
-            categories: timelineData.map(item => item.date),
+            categories: validTimeline.map((item) => item.date),
             labels: {
                 style: {
-                    colors: '#6B7280', // gray-500
-                    fontSize: '12px'
-                }
-            }
+                    colors: '#6B7280',
+                    fontSize: '12px',
+                },
+            },
         },
         yaxis: {
             title: { text: 'Executions' },
             labels: {
                 style: {
                     colors: '#6B7280',
-                    fontSize: '12px'
-                }
-            }
+                    fontSize: '12px',
+                },
+            },
         },
         colors: ['#4CAF50', '#F44336'],
         tooltip: {
-            x: { format: 'dd MMM yyyy' }
+            x: { format: 'dd MMM yyyy' },
         },
         legend: {
             position: 'top',
             horizontalAlign: 'right',
             labels: {
-                colors: '#374151', // gray-700
-            }
-        }
+                colors: '#374151',
+            },
+        },
     };
 
     const chartSeries = [
         {
             name: 'Success',
-            data: timelineData.map(item => item.successCount)
+            data: validTimeline.map((item) => item.successCount),
         },
         {
             name: 'Failed',
-            data: timelineData.map(item => item.failureCount)
-        }
+            data: validTimeline.map((item) => item.failureCount),
+        },
     ];
 
     return (
@@ -71,12 +74,18 @@ const TimelineChart = ({ timeRange }) => {
             <h2 className="text-xl font-semibold text-gray-800 mb-4 text-center">
                 Execution Timeline
             </h2>
-            <Chart
-                options={chartOptions}
-                series={chartSeries}
-                type="line"
-                height={350}
-            />
+            {loading ? (
+                <p className="text-center text-gray-500">Loading chart...</p>
+            ) : validTimeline.length > 0 ? (
+                <Chart
+                    options={chartOptions}
+                    series={chartSeries}
+                    type="line"
+                    height={350}
+                />
+            ) : (
+                <p className="text-center text-gray-500">No timeline data available.</p>
+            )}
         </div>
     );
 };
