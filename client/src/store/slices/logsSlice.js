@@ -3,7 +3,7 @@ import api from "../../services/api";
 
 export const fetchLogs = createAsyncThunk(
     "logs/fetchLogs",
-    async ({ page = 1, limit = 20, filters = {} }) => {
+    async ({ page = 1, limit = 50, filters = {} }) => {
         const response = await api.get("/logs", {
             params: { page, limit, ...filters }
         })
