@@ -54,3 +54,48 @@ export const getSummaryLogs = async (req, res) => {
     }
 
 }
+
+export const getTimelineLogs = async (req, res) => {
+    try {
+        const { range = '24h' } = req.query;
+        const dateFilter = getDateRange(range);
+
+        const timelineData = await Log.aggregate([
+            {
+                $match: {
+                    timestamp: { $gte: dateFilter },
+                    status: { $in: ['Success', 'Failed'] }
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        date: { $dateToString: { format: "%Y-%m-%d", date: "$timestamp" } },
+                        status: "$status"
+                    },
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $group: {
+                    _id: "$_id.date",
+                    successCount: {
+                        $sum: { $cond: [{ $eq: ["$_id.status", "Success"] }, "$count", 0] }
+                    },
+                    failureCount: {
+                        $sum: { $cond: [{ $eq: ["$_id.status", "Failed"] }, "$count", 0] }
+                    }
+                }
+            },
+            { $sort: { _id: 1 } }
+        ]);
+
+        res.json(timelineData.map(item => ({
+            date: item._id,
+            successCount: item.successCount,
+            failureCount: item.failureCount
+        })));
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+}
